@@ -3,6 +3,24 @@ from discord import app_commands
 from discord.ext import commands
 import random
 import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# ── KEEP ALIVE (für Render Web Service) ──
+class KeepAlive(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"DWN Bot is running!")
+    def log_message(self, format, *args):
+        pass
+
+def run_server():
+    port = int(os.getenv("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), KeepAlive)
+    server.serve_forever()
+
+threading.Thread(target=run_server, daemon=True).start()
 
 # ── BOT SETUP ──
 intents = discord.Intents.default()
